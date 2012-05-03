@@ -39,10 +39,11 @@ module DigitecWatcher
       @config.watches.each do |watch|
         doc = Nokogiri::HTML(open(watch))
         price = doc.css('td.preis').text
+        article = doc.css('#PanelKopf h4').text
         changes = @changes[watch] || []
         if changes.empty? || changes.last != price
           last_price = changes.last || ""
-          notify(watch, price, last_price)
+          notify(watch, article, price, last_price)
           changes << price
         end
         @changes[watch] = changes
@@ -57,10 +58,10 @@ module DigitecWatcher
 
     private
 
-    def notify(watch, price, last_price)
+    def notify(watch, article, price, last_price)
       puts "Notifying #{@config.recipients} about #{watch} " +
            "changing from #{last_price} to #{price}"
-      mail = Mailer.change_email(@config.recipients, watch, price, last_price)
+      mail = Mailer.change_email(@config.recipients, watch, article, price, last_price)
       mail.deliver
     end
   end
