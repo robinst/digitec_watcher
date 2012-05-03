@@ -61,7 +61,7 @@ module DigitecWatcher
       puts "Notifying #{@config.recipients} about #{watch} " +
            "changing from #{last_price} to #{price}"
       mail = Mailer.change_email(@config.recipients, watch, price, last_price)
-      p mail.body
+      mail.deliver
     end
   end
 end
