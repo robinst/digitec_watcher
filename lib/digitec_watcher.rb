@@ -1,4 +1,5 @@
-require 'digitec-watcher/version'
+require 'digitec_watcher/version'
+require 'digitec_watcher/mailer'
 
 require 'json'
 require 'open-uri'
@@ -59,6 +60,8 @@ module DigitecWatcher
     def notify(watch, price, last_price)
       puts "Notifying #{@config.recipients} about #{watch} " +
            "changing from #{last_price} to #{price}"
+      mail = Mailer.change_email(@config.recipients, watch, price, last_price)
+      p mail.body
     end
   end
 end

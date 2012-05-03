@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/digitec-watcher/version', __FILE__)
+require File.expand_path('../lib/digitec_watcher/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Robin Stocker"]
@@ -11,9 +11,10 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.name          = "digitec-watcher"
+  gem.name          = "digitec_watcher"
   gem.require_paths = ["lib"]
   gem.version       = DigitecWatcher::VERSION
 
-  gem.add_dependency 'nokogiri', "~> 1.5.2"
+  gem.add_dependency 'nokogiri', '~> 1.5.2'
+  gem.add_dependency 'actionmailer', '~> 3.2.3'
 end
