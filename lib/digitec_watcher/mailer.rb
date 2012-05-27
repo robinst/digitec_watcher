@@ -6,8 +6,8 @@ ActionMailer::Base.view_paths = File.join(File.dirname(__FILE__), '..')
 
 module DigitecWatcher
   class Mailer < ActionMailer::Base
-    def change_email(recipients, watch, article, price, last_price)
-      @watch = watch
+    def change_email(recipients, url, article, price, last_price)
+      @url = url
       @price = price
       @last_price = last_price
       mail(:to => recipients,

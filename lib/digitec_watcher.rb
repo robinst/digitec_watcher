@@ -7,19 +7,27 @@ require 'nokogiri'
 
 module DigitecWatcher
   class Config
-    attr_reader :recipients, :watches
+    attr_reader :watches
 
     def self.from_json(config_file)
       config_data = File.open(config_file) { |f| f.read }
       config = JSON.parse(config_data)
-      recipients = config['recipients']
-      watches = config['watches']
-      Config.new(recipients, watches)
+      watches_config = config['watches']
+      watches = watches_config.map{ |w| Watch.new(w['urls'], w['recipients']) }
+      Config.new(watches)
     end
 
-    def initialize(recipients, watches)
-      @recipients = recipients
+    def initialize(watches)
       @watches = watches
+    end
+  end
+
+  class Watch
+    attr_reader :urls, :recipients
+
+    def initialize(urls, recipients)
+      @urls = urls
+      @recipients = recipients
     end
   end
 
@@ -37,16 +45,18 @@ module DigitecWatcher
 
     def check_and_notify
       @config.watches.each do |watch|
-        doc = Nokogiri::HTML(open(watch))
-        price = doc.css('td.preis').text
-        article = doc.css('#PanelKopf h4').text
-        changes = @changes[watch] || []
-        if changes.empty? || changes.last != price
-          last_price = changes.last || ""
-          notify(watch, article, price, last_price)
-          changes << price
+        watch.urls.each do |url|
+          doc = Nokogiri::HTML(open(url))
+          price = doc.css('td.preis').text
+          article = doc.css('#PanelKopf h4').text
+          changes = @changes[url] || []
+          if changes.empty? || changes.last != price
+            last_price = changes.last || ""
+            notify(watch.recipients, url, article, price, last_price)
+            changes << price
+          end
+          @changes[url] = changes
         end
-        @changes[watch] = changes
       end
     end
 
@@ -58,10 +68,10 @@ module DigitecWatcher
 
     private
 
-    def notify(watch, article, price, last_price)
-      puts "Notifying #{@config.recipients} about #{watch} " +
+    def notify(recipients, url, article, price, last_price)
+      puts "Notifying #{recipients} about #{url} " +
            "changing from #{last_price} to #{price}"
-      mail = Mailer.change_email(@config.recipients, watch, article, price, last_price)
+      mail = Mailer.change_email(recipients, url, article, price, last_price)
       mail.deliver
     end
   end
