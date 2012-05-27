@@ -1,4 +1,4 @@
-# DigitecWatcher
+# Digitec Watcher
 
 Script to watch the Digitec website for price changes and send out
 notifications per e-mail.
