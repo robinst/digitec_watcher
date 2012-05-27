@@ -1,0 +1,12 @@
+{
+  "watches": [
+    {
+      "urls": [
+        "https://www.digitec.ch/ProdukteDetails2.aspx?Reiter=Details&Artikel=XXX",
+        "https://www.digitec.ch/ProdukteDetails2.aspx?Reiter=Details&Artikel=YYY"
+      ],
+      "recipients": ["me@example.org"]
+    }
+  ]
+}
+

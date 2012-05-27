@@ -1,24 +1,14 @@
 # DigitecWatcher
 
-TODO: Write a gem description
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'digitec-watcher'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install digitec-watcher
+Script to watch the Digitec website for price changes and send out
+notifications per e-mail.
 
 ## Usage
 
-TODO: Write usage instructions here
+1. Clone this repo
+2. Run `bundle install`
+3. Copy the config.sample.json to config.json and change URLs and e-mail
+4. Run notify.rb as a cron job at desired interval
 
 ## Contributing
 
