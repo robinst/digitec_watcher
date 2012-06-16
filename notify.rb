@@ -5,5 +5,6 @@ require 'digitec_watcher'
 
 config = DigitecWatcher::Config.from_json("config.json")
 checker = DigitecWatcher::Checker.new(config, "changes.json")
-checker.check_and_notify
+notifications = checker.check
+DigitecWatcher::Notifier.send_notifications(notifications)
 checker.save_changes

@@ -17,4 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'nokogiri', '~> 1.5.2'
   gem.add_dependency 'actionmailer', '~> 3.2.3'
+
+  gem.add_development_dependency 'bundler', '~> 1.1.0'
+  gem.add_development_dependency 'shoulda-context', '~> 1.0'
 end

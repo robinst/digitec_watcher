@@ -31,10 +31,20 @@ module DigitecWatcher
     end
   end
 
+  class NokogiriParser
+    def parse(url)
+      doc = Nokogiri::HTML(open(url))
+      price = doc.css('td.preis').text
+      article = doc.css('#PanelKopf h4').text
+      { :price => price, :article_title => article }
+    end
+  end
+
   class Checker
-    def initialize(config, changes_file)
+    def initialize(config, changes_file, parser=NokogiriParser.new)
       @config = config
       @changes_file = changes_file
+      @parser = parser
       if File.exists?(changes_file)
         changes_data = File.open(changes_file) { |f| f.read }
         @changes = JSON.parse(changes_data)
@@ -43,21 +53,29 @@ module DigitecWatcher
       end
     end
 
-    def check_and_notify
+    def check
+      notifications = []
       @config.watches.each do |watch|
         watch.urls.each do |url|
-          doc = Nokogiri::HTML(open(url))
-          price = doc.css('td.preis').text
-          article = doc.css('#PanelKopf h4').text
+          result = @parser.parse(url)
+          price = result[:price]
+          article_title = result[:article_title]
           changes = @changes[url] || []
           if changes.empty? || changes.last != price
             last_price = changes.last || ""
-            notify(watch.recipients, url, article, price, last_price)
+            notification = Notification.new
+            notification.recipients = watch.recipients
+            notification.url = url
+            notification.article_title = article_title
+            notification.price = price
+            notification.last_price = last_price
+            notifications << notification
             changes << price
           end
           @changes[url] = changes
         end
       end
+      notifications
     end
 
     def save_changes
@@ -65,14 +83,20 @@ module DigitecWatcher
         f.write(JSON.generate(@changes))
       end
     end
+  end
 
-    private
+  class Notification
+    attr_accessor :recipients, :url, :article_title, :price, :last_price
+  end
 
-    def notify(recipients, url, article, price, last_price)
-      puts "Notifying #{recipients} about #{url} " +
-           "changing from #{last_price} to #{price}"
-      mail = Mailer.change_email(recipients, url, article, price, last_price)
-      mail.deliver
+  class Notifier
+    def self.send_notifications(notifications)
+      notifications.each do |n|
+        puts "Notifying #{n.recipients} about #{n.url} " +
+             "changing from #{n.last_price} to #{n.price}"
+        mail = Mailer.change_email(n)
+        mail.deliver
+      end
     end
   end
 end
