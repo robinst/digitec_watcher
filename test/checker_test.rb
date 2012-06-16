@@ -24,5 +24,15 @@ class CheckerTest < Test::Unit::TestCase
       notifications = @checker.check
       assert !notifications.empty?
     end
+
+    should "bundle notifications about the same URL" do
+      notifications = @checker.check
+      assert_equal 3, notifications.size
+      assert_equal "url1", notifications[0].url
+      assert_equal "url2", notifications[1].url
+      assert_equal "url3", notifications[2].url
+
+      assert_equal ["recipient1", "recipient2", "recipient3"], notifications[0].recipients
+    end
   end
 end

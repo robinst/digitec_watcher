@@ -55,25 +55,27 @@ module DigitecWatcher
 
     def check
       notifications = []
-      @config.watches.each do |watch|
-        watch.urls.each do |url|
-          result = @parser.parse(url)
-          price = result[:price]
-          article_title = result[:article_title]
-          changes = @changes[url] || []
-          if changes.empty? || changes.last != price
-            last_price = changes.last || ""
-            notification = Notification.new
-            notification.recipients = watch.recipients
-            notification.url = url
-            notification.article_title = article_title
-            notification.price = price
-            notification.last_price = last_price
-            notifications << notification
-            changes << price
-          end
-          @changes[url] = changes
+      urls = @config.watches.map{ |watch| watch.urls }.flatten.uniq
+      urls.each do |url|
+        result = @parser.parse(url)
+        price = result[:price]
+        article_title = result[:article_title]
+        changes = @changes[url] || []
+        last_price = changes.last || ""
+        if changes.empty? || last_price != price
+          changes << price
+
+          affected_watches = @config.watches.select{ |watch| watch.urls.include?(url) }
+          recipients = affected_watches.map{ |watch| watch.recipients }.flatten
+          notification = Notification.new
+          notification.recipients = recipients
+          notification.url = url
+          notification.article_title = article_title
+          notification.price = price
+          notification.last_price = last_price
+          notifications << notification
         end
+        @changes[url] = changes
       end
       notifications
     end
