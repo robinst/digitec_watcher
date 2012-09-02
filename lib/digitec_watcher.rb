@@ -33,7 +33,7 @@ module DigitecWatcher
 
   class NokogiriParser
     def parse(url)
-      doc = Nokogiri::HTML(open(url).read)
+      doc = Nokogiri::HTML(open(url).read, nil, 'utf-8')
       price = doc.css('td.preis').text
       article = doc.css('#PanelKopf h4').text
       delivery_table = doc.css('#p table tr').first
