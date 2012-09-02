@@ -1,7 +1,7 @@
 # Digitec Watcher
 
-Script to watch the Digitec website for price changes and send out
-notifications per e-mail.
+Script to watch the Digitec website for price or delivery status changes
+and send out notifications per e-mail.
 
 ## Usage
 
