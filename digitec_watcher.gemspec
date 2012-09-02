@@ -4,8 +4,8 @@ require File.expand_path('../lib/digitec_watcher/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Robin Stocker"]
   gem.email         = ["robin@nibor.org"]
-  gem.summary       = %q{Notify about Digitec price changes per e-mail}
-  gem.description   = %q{Script to watch the Digitec website for price changes and send out notifications per e-mail}
+  gem.summary       = %q{Notify about Digitec price or delivery status changes per e-mail}
+  gem.description   = %q{Script to watch the Digitec website for price or delivery status changes and send out notifications per e-mail}
   gem.homepage      = "https://github.com/robinst/digitec_watcher"
 
   gem.files         = `git ls-files`.split($\)

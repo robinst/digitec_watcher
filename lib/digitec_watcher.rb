@@ -33,10 +33,15 @@ module DigitecWatcher
 
   class NokogiriParser
     def parse(url)
-      doc = Nokogiri::HTML(open(url))
+      doc = Nokogiri::HTML(open(url).read)
       price = doc.css('td.preis').text
       article = doc.css('#PanelKopf h4').text
-      { :price => price, :article_title => article }
+      delivery_table = doc.css('#p table tr').first
+      delivery_table.css("br").each do |br|
+        br.replace(" ")
+      end
+      delivery = delivery_table.text.strip
+      { :article_title => article, :price => price, :delivery => delivery }
     end
   end
 
@@ -47,7 +52,8 @@ module DigitecWatcher
       @parser = parser
       if File.exists?(changes_file)
         changes_data = File.open(changes_file) { |f| f.read }
-        @changes = JSON.parse(changes_data)
+        changes = JSON.parse(changes_data)
+        @changes = migrate_old_changes(changes)
       else
         @changes = {}
       end
@@ -59,11 +65,13 @@ module DigitecWatcher
       urls.each do |url|
         result = @parser.parse(url)
         price = result[:price]
+        delivery = result[:delivery]
         article_title = result[:article_title]
         changes = @changes[url] || []
-        last_price = changes.last || ""
-        if changes.empty? || last_price != price
-          changes << price
+        last_price = (changes.last || {})['price']
+        last_delivery = (changes.last || {})['delivery']
+        if changes.empty? || last_price != price || last_delivery != delivery
+          changes << { 'price' => price, 'delivery' => delivery }
 
           affected_watches = @config.watches.select{ |watch| watch.urls.include?(url) }
           recipients = affected_watches.map{ |watch| watch.recipients }.flatten
@@ -73,6 +81,8 @@ module DigitecWatcher
           notification.article_title = article_title
           notification.price = price
           notification.last_price = last_price
+          notification.delivery = delivery
+          notification.last_delivery = last_delivery
           notifications << notification
         end
         @changes[url] = changes
@@ -85,17 +95,33 @@ module DigitecWatcher
         f.write(JSON.generate(@changes))
       end
     end
+
+    private
+
+    def migrate_old_changes(changes)
+      migrated = {}
+      changes.each do |url, value|
+        new_value = value.map{ |v|
+          if v.is_a?(String)
+            { 'price' => v }
+          else
+            v
+          end
+        }
+        migrated[url] = new_value
+      end
+      migrated
+    end
   end
 
   class Notification
-    attr_accessor :recipients, :url, :article_title, :price, :last_price
+    attr_accessor :recipients, :url, :article_title, :price, :last_price, :delivery, :last_delivery
   end
 
   class Notifier
     def self.send_notifications(notifications)
       notifications.each do |n|
-        puts "Notifying #{n.recipients} about #{n.url} " +
-             "changing from #{n.last_price} to #{n.price}"
+        puts "Notifying #{n.recipients} about #{n.url}: " + n
         mail = Mailer.change_email(n)
         mail.deliver
       end
