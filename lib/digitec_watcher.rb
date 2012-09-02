@@ -121,7 +121,7 @@ module DigitecWatcher
   class Notifier
     def self.send_notifications(notifications)
       notifications.each do |n|
-        puts "Notifying #{n.recipients} about #{n.url}: " + n
+        puts "Notifying #{n.recipients} about #{n.url}: " + n.inspect
         mail = Mailer.change_email(n)
         mail.deliver
       end
