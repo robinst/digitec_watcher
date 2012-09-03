@@ -51,7 +51,7 @@ module DigitecWatcher
       @changes_file = changes_file
       @parser = parser
       if File.exists?(changes_file)
-        changes_data = File.open(changes_file) { |f| f.read }
+        changes_data = File.open(changes_file, 'r:utf-8') { |f| f.read }
         changes = JSON.parse(changes_data)
         @changes = migrate_old_changes(changes)
       else
@@ -91,7 +91,7 @@ module DigitecWatcher
     end
 
     def save_changes
-      File.open(@changes_file, 'w') do |f|
+      File.open(@changes_file, 'w:utf-8') do |f|
         f.write(JSON.generate(@changes))
       end
     end
