@@ -12,7 +12,7 @@ module DigitecWatcher
     def self.from_json(config_file)
       config_data = File.open(config_file) { |f| f.read }
       config = JSON.parse(config_data)
-      watches_config = config['watches']
+      watches_config = config['watches'] || []
       watches = watches_config.map{ |w| Watch.new(w['urls'], w['recipients']) }
       Config.new(watches)
     end
