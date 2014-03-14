@@ -5,8 +5,11 @@ and send out notifications per e-mail.
 
 ## Usage
 
+The script uses Ruby and Bundler for installing dependencies. To make sure
+bundler is installed, run `gem install bundler`. Then:
+
 1. Clone this repo
-2. Run `bundle install`
+2. Run `bundle install` inside the cloned repository
 3. Copy the config.sample.json to config.json and change URLs and e-mail
 4. Run notify.rb as a cron job at desired interval
 
