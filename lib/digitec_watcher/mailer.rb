@@ -14,7 +14,7 @@ module DigitecWatcher
       @last_delivery = notification.last_delivery
       article = notification.article_title
       mail(:to => notification.recipients,
-           :from => "Digitec Watcher <noreply@nibor.org>",
+           :from => "Digitec Watcher <digitec_watcher@example.org>",
            :subject => "#{article}") do |format|
         format.text
       end
